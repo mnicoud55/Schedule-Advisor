@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+{% load socialaccount %}
+
+{% block content %}
+	<!-- only allow users that are logged in with a valid account to search classes -->
+	{% if not user.is_authenticated or not user.is_instansiated or user.user_type == 'A' %}
+		<p>Sorry, but you must be a logged in student to use this feature! Click <a href="{% url 'index' %}">here</a> to return to the login page.</p>
+	{% else %}
+		{% if user.user_type == 'S' %}
+			{% if selected_term == '1238' %}
+				<h1>Fall 2023 Schedule</h1>
+			{% endif %}
+			{% if selected_term == '1236' %}
+				<h1>Summer 2023 Schedule</h1>
+			{% endif %}
+			{% if selected_term == '1232' %}
+				<h1>Spring 2023 Schedule</h1>
+			{% endif %}
+			{% if selected_term == '1231' %}
+				<h1>J-Term 2023 Schedule</h1>
+			{% endif %}
+			{% if selected_term == '1228' %}
+				<h1>Fall 2022 Schedule</h1>
+			{% endif %}
+			{% if selected_term == '1226' %}
+				<h1>Summer 2022 Schedule</h1>
+			{% endif %}
+			{% if selected_term == '1222' %}
+				<h1>Spring 2022 Schedule</h1>
+			{% endif %}
+			{% if selected_term == '1221' %}
+				<h1>J-Term 2022 Schedule</h1>
+			{% endif %}
+			{% if user.approval_status == 'U' %}
+				<div class="result col-md-12">
+					<form action="{% url 'schedule' %}" method="POST">
+						{% csrf_token %}
+						<label for="term_select"><h2>Select a different term:</h2></label>
+						<select onchange="change()" name="term_select" id="term_select">
+							<option value='1238'>Fall 2023</option>
+							<option value='1236'>Summer 2023</option>
+							<option value='1232'>Spring 2023</option>
+							<option value='1231'>J-Term 2023</option>
+							<option value='1228'>Fall 2022</option>
+							<option value='1226'>Summer 2022</option>
+							<option value='1222'>Spring 2022</option>
+							<option value='1221'>J-Term 2022</option>
+						</select>
+						<br>
+						<div class="col-xs-3 col-xs-offset-9 col-md-2 col-md-offset-10">
+							<button type="submit" class="btn btn-primary btn-lg btn-block">Change Term</button>
+						</div>
+					</form>
+					<hr>
+					<br>
+				</div>
+				<div class="result col-md-12">
+					<form action="{% url 'send_schedule' %}" method="POST">
+						{% csrf_token %}
+						<label for="advisors"><h2>Select an advisor to send your schedule to:</h2></label>
+						<select name="advisors" id="advisors">
+							<option disabled selected value> -- select an option -- </option>
+							{% for usr in user_list %}
+								{% if usr.user_type == 'A' %}
+									<option value="{{ usr.username }}">{{ usr.first_name }} {{ usr.last_name }}</option>
+								{% endif %}
+							{% endfor %}
+						</select>
+						<br>
+						<div class="col-xs-3 col-xs-offset-9 col-md-2 col-md-offset-10">
+							<button type="submit" class="btn btn-primary btn-lg btn-block" style = "font-size:15px;" onclick="checkOverlap(event)">Send Schedule to Advisor</button>
+						</div>
+					</form>
+					<hr>
+					<br>
+				</div>
+			{% endif %}
+			{% if user.approval_status == 'N' %}
+				<h3>Schedule sent to advisor and pending approval.</h3>
+			{% endif %}
+			{% if user.approval_status == 'A' %}
+				<h3>Your schedule has been approved! You may resubmit if you make changes.</h3>
+			{% endif %}
+			{% if user.approval_status == 'R' %}
+				<h3>Your schedule has been rejected. You may resubmit if you make changes.</h3>
+			{% endif %}
+
+			<script>
+				var totalUnits = 0;
+				let meetingTimes = {};
+			</script>
+
+			<script>
+				function checkOverlap(event) {
+					if (findOverlap(meetingTimes)) {
+					event.preventDefault();
+					alert("Fix time conflict to send schedule to advisor");
+				}
+			}
+			</script>
+
+			<hr>
+			<br>
+			{% for class_arr in user.cart_json %}
+				{% for course in class_arr %}
+					{% if selected_term == course.strm %}
+						<div class="result col-md-12">
+							
+							<div class="row">
+								
+								<div class="col-xs-8 col-md-6">
+									<h3>{{ course.subject }}{{ course.catalog_nbr }}-{{ course.component }} - {{ course.descr }}</h3>
+								</div>
+
+								<div class="col-xs-4 col-md-1 col-md-offset-5">
+									<h3>{{ course.units }} Units</h3>
+										<script>
+											var classUnits = parseInt('{{ course.units }}');
+											totalUnits = totalUnits + classUnits;
+										</script>
+								</div>
+
+							</div>
+
+							<div class="row">
+								<hr class="faded-separator">
+							</div>
+							
+							<div class="row">
+								<div class="col-xs-12 col-md-12">
+									<h4><a class="enrl-{{ course.enrl_stat_descr }}">{{ course.enrl_stat_descr }}</a> - {{ course.enrollment_available }} <b>/</b> {{ course.class_capacity }}</h4>
+									<h4 class="enrl-Waitlist">Waitlist - {{ course.wait_tot }} <b>/</b> {{ course.wait_cap }}</h4>
+								</div>
+							</div>
+							
+							<div class="row">
+								<div class="col-xs-12 col-md-12">
+									{% for instructor in course.instructors %}
+										<h4>{{ instructor.name }} - <a href="mailto:{{ instructor.email }}">{{ instructor.email }}</a></h4>
+									{% endfor %}
+								</div>
+							</div>
+
+							<div class="row">
+								<div class="col-xs-12 col-md-12">
+									{% for meeting in course.meetings %}
+										<h4>Days: {{ meeting.days }}</h4>
+										<h4>Time: 
+											<script>
+												function displayTime(time) {
+													let arr = time.split(".");
+													let result = "";
+													if (parseInt(arr[0]) > 12) {
+														result = (parseInt(arr[0])-12).toString() + ":" + arr[1].toString() + " pm";
+													} else if (parseInt(arr[0]) == 12) {
+														result = "12" + ":" + arr[1].toString() + " pm";
+													} else if (parseInt(arr[0]) == 0) {
+														result = "12" + ":" + arr[1].toString() + " am";
+													} else {
+														result = arr[0].toString() + ":" + arr[1] + " am";
+													}
+													return result;
+												}
+												
+												var startTimeArr = '{{ meeting.start_time }}'.split(".");
+												var endTimeArr = '{{ meeting.end_time }}'.split(".");
+												var startTime = startTimeArr[0] + startTimeArr[1];
+												var endTime = endTimeArr[0] + endTimeArr[1];
+												startTime = parseInt(startTime);
+												endTime = parseInt(endTime);
+
+												var meetingDays = '{{ meeting.days }}';
+												var days = [];
+												for (let i = 0; i < meetingDays.length; i += 2) {
+													var day = meetingDays[i] + meetingDays[i+1];
+													days.push(day);
+												}
+												console.log(days);
+
+												//if (!('{{ meeting.days }}' in meetingTimes)){
+												//	meetingTimes['{{ meeting.days }}'] = [];
+												//}
+												for (let i = 0; i < days.length; i++){
+													if (!(days[i] in meetingTimes)){
+														meetingTimes[days[i]] = [];
+													}
+													meetingTimes[days[i]].push([startTime, endTime]);
+												}
+												//meetingTimes['{{ meeting.days }}'].push([startTime, endTime]);
+												//console.log(meetingTimes);
+
+												console.log(meetingTimes);
+
+												function findOverlap(meetingTimesDict){
+													for (let key in meetingTimesDict) {
+														meetingTimesDict[key].sort((a, b) => a[0] - b[0]);
+
+														for (let i = 1; i < meetingTimesDict[key].length; i++) {
+															if (meetingTimesDict[key][i][0] <= meetingTimesDict[key][i - 1][1]) {
+																console.log("Found Overlap")
+																return true;
+															}
+														}	
+													}
+													return false;
+												}
+
+												findOverlap(meetingTimes);
+
+												if (startTimeArr[0] == '' || startTimeArr[1] == '') {
+													document.write('No Designated Time');
+												} else { 
+													document.write(displayTime('{{ meeting.start_time }}') + ' - ');
+													document.write(displayTime('{{ meeting.end_time }}'));
+												}
+											</script>
+										</h4>
+									{% endfor %}
+								</div>
+							</div>
+							{% if user.approval_status != 'N' %}
+								<div class="row">
+									<div class="col-xs-3 col-xs-offset-9 col-md-2 col-md-offset-10" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+										<button class="btn btn-danger btn-lg btn-block" hx-post="{% url 'edit_schedule' course.strm course.class_nbr %}" hx-trigger="click" hx-swap="outerHTML">Remove from Schedule</button>
+									</div>
+								</div>
+							{% endif %}
+						</div>
+					{% endif %}
+				{% endfor %}
+			{% endfor %}
+			<h3>Total Units:
+				<script>
+					totalUnits = totalUnits.toString();
+					document.write(totalUnits);
+				</script>
+			</h3> 
+		{% endif %}
+	{% endif %}
+{% endblock %}

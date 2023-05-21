@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load socialaccount %}
+
+{% block content %}
+	<!-- redirect user to index after logging in via Google -->
+	{% if user.is_authenticated and user.is_instansiated %}
+		<a href="{% url 'index' %}" id="redir">Click here if not automatically redirected...</a>
+		<script type="text/javascript">document.getElementById("redir").click()</script>
+	{% else %}
+		<h2>
+			Create Account
+			<!-- only display the text if user attempted login via Google, but there was no matching account for site -->
+			{% if user.is_authenticated %}
+				<br><small>It seems this Google account is not yet linked to any account here. Fill out your info below to create one!</small>
+			{% endif %}
+		</h2>
+		<div class="col-xs-12 col-md-6">
+			<form action="submit/" method="post">
+
+				{% csrf_token %}
+
+				<div class="form-group">
+					<label for="first_name">First Name</label>
+					<input class="form-control" type="text" id="first_name" name="first_name" placeholder="Enter your first name" value="{{ user.first_name }}" required></input>
+				</div>
+
+				<div class="form-group">
+					<label for="last_name">Last Name</label>
+					<input class="form-control" type="text" id="last_name" name="last_name" placeholder="Enter your last name" value="{{ user.last_name }}"></input>
+				</div>
+
+				<div class="form-group">
+					<label for="email">Email</label>
+					<input class="form-control" type="email" id="email" name="email" placeholder="Enter your email" value="{{ user.email }}" required></input>
+				</div>
+
+				<div class="form-group">
+					<label for="username">Username</label>
+					<input class="form-control" type="text" id="username" name="username" placeholder="Enter a username" required></input>
+				</div>
+
+				<div class="form-group">
+					<label for="password">Password: </label>
+					<input class="form-control" type="password" id="password" name="password" placeholder="Enter a password" required></input>
+				</div>
+
+				<div class="form-group">
+					<label for="type">User Type</label>
+					<select class="form-control" name="type" id="type">
+						<option value="S">Student</option>
+						<option value="A">Advisor</option>
+					</select><br>
+				</div>
+
+				<div class="col-xs-4 col-xs-offset-4 col-md-4 col-md-offset-4">
+					<button type="submit" class="btn btn-primary btn-lg btn-block">Create Account</button>
+				</div>
+			</form>
+		</div>
+	{% endif %}
+{% endblock %}

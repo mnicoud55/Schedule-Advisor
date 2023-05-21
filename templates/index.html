@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load socialaccount %}
+
+{% block content %}
+    {% if user.is_authenticated and user.is_instansiated %}
+        <div class="row">
+            <div class="col-xs-12 col-md-12">
+                {% if user.user_type == 'S' %}
+					{% if user.approval_status == 'A' %}
+						<h3>Welcome {{ user.username }}! Your advisor has provided an update on your schedule! Select the View Schedule tab to read more.</h3>
+					{% endif %}
+					{% if user.approval_status == 'R' %}
+						<h3>Welcome {{ user.username }}! Your advisor has provided an update on your schedule! Select the View Schedule tab to read more.</h3>
+					{% endif %}
+					{% if user.approval_status == 'N' %}
+						<h3>Welcome {{ user.username }}! Your schedule is pending approval.</h3>
+					{% endif %}
+					{% if user.approval_status == 'U' %}
+						<h3>Welcome {{ user.username }}! Select the Search Classes tab to view classes and add any to your schedule. Select the View Schedule tab to view your schedule and send it to your advisor when you are ready.</h3>
+					{% endif %}
+				{% else %}
+					<h3>Welcome {{ user.username }}! Select the Search Classes tab to view classes. Select the View Student Schedules tab to review student schedules for approval.</h3>
+				{% endif %}
+            </div>
+        </div>
+        <br>
+        <style type="text/css">
+            body {
+                background-position:bottom;
+                background-image:url(https://news.virginia.edu/sites/default/files/article_image/accolades_ss_header.jpg);
+                background-repeat: no-repeat;
+                background-size: 900px 545px;
+            }
+        </style>
+    {% else %}
+        <a class="btn btn-default btn-lg" href="{% url 'signup' %}" role="button">Sign Up</a><br>
+        
+        <a class="btn btn-default btn-lg" href="{% url 'login' %}" role="button">Login</a><br>
+
+        <a class="btn btn-default btn-lg" href="{% provider_login_url 'google' process='login' %}" role="button">Login With Google</a><br>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load socialaccount %}
+
+{% block content %}
+	<!-- only allow users that are logged in with a valid account to search classes -->
+	{% if not user.is_authenticated or not user.is_instansiated or user.user_type == 'S' %}
+		<p>Sorry, but you must be a logged in advisor to use this feature! Click <a href="{% url 'index' %}">here</a> to return to the login page.</p>
+	{% else %}
+		<h2>Student Schedules:</h2>
+		{% for student in user.students.all %}
+			<div class="result col-md-12">
+				<h3><a href="{% url 'view_schedule' student.username %}">{{ student.first_name }} {{ student.last_name }} ({{ student.username }})</a></h3>
+			</div>
+		{% endfor %}
+	{% endif %}
+{% endblock %}

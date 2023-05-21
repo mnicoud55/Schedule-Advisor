@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load socialaccount %}
+
+{% block content %}
+	<!-- only allow users that are logged in with a valid account to search classes -->
+	{% if not user.is_authenticated or not user.is_instansiated %}
+		<p>Sorry, but you must be logged in to use this feature! Click <a href="{% url 'index' %}">here</a> to return to the login page.</p>
+	{% else %}
+	{% if student.schedule_term == '1238' %}
+    	<h2>{{ student.first_name }} {{ student.last_name }}'s Fall 2023 Schedule</h2>
+	{% endif %}
+	{% if student.schedule_term == '1236' %}
+    	<h2>{{ student.first_name }} {{ student.last_name }}'s Summer 2023 Schedule</h2>
+	{% endif %}
+	{% if student.schedule_term == '1232' %}
+    	<h2>{{ student.first_name }} {{ student.last_name }}'s Spring 2023 Schedule</h2>
+	{% endif %}
+	{% if student.schedule_term == '1231' %}
+    	<h2>{{ student.first_name }} {{ student.last_name }}'s J-Term 2023 Schedule</h2>
+	{% endif %}
+	{% if student.schedule_term == '1228' %}
+    	<h2>{{ student.first_name }} {{ student.last_name }}'s Fall 2022 Schedule</h2>
+	{% endif %}
+	{% if student.schedule_term == '1226' %}
+    	<h2>{{ student.first_name }} {{ student.last_name }}'s Summer 2022 Schedule</h2>
+	{% endif %}
+	{% if student.schedule_term == '1222' %}
+    	<h2>{{ student.first_name }} {{ student.last_name }}'s Spring 2022 Schedule</h2>
+	{% endif %}
+	{% if student.schedule_term == '1221' %}
+    	<h2>{{ student.first_name }} {{ student.last_name }}'s J-Term 2022 Schedule</h2>
+	{% endif %}
+
+		<script>
+			var totalUnits = 0;
+		</script>
+
+		{% for class_arr in student.cart_json %}
+			{% for course in class_arr %}
+				{% if student.schedule_term == course.strm %}
+					<div class="result col-md-12">
+						
+						<div class="row">
+							
+							<div class="col-xs-8 col-md-6">
+								<h3>{{ course.subject }}{{ course.catalog_nbr }}-{{ course.component }} - {{ course.descr }}</h3>
+							</div>
+
+							<div class="col-xs-4 col-md-1 col-md-offset-5">
+								<h3>{{ course.units }} Units</h3>
+									<script>
+										var classUnits = parseInt('{{ course.units }}');
+										totalUnits = totalUnits + classUnits;
+									</script>
+							</div>
+
+						</div>
+
+						<div class="row">
+							<hr class="faded-separator">
+						</div>
+						
+						<div class="row">
+							<div class="col-xs-12 col-md-12">
+								<h4><a class="enrl-{{ course.enrl_stat_descr }}">{{ course.enrl_stat_descr }}</a> - {{ course.enrollment_available }} <b>/</b> {{ course.class_capacity }}</h4>
+								<h4 class="enrl-Waitlist">Waitlist - {{ course.wait_tot }} <b>/</b> {{ course.wait_cap }}</h4>
+							</div>
+						</div>
+						
+						<div class="row">
+							<div class="col-xs-12 col-md-12">
+								{% for instructor in course.instructors %}
+									<h4>{{ instructor.name }} - <a href="mailto:{{ instructor.email }}">{{ instructor.email }}</a></h4>
+								{% endfor %}
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="col-xs-12 col-md-12">
+								{% for meeting in course.meetings %}
+									<h4>Days: {{ meeting.days }}</h4>
+									<h4>Time: 
+										<script>
+											function displayTime(time) {
+												let arr = time.split(".");
+												let result = "";
+												if (parseInt(arr[0]) > 12) {
+													result = (parseInt(arr[0])-12).toString() + ":" + arr[1].toString() + " pm";
+												} else if (parseInt(arr[0]) == 12) {
+													result = "12" + ":" + arr[1].toString() + " pm";
+												} else if (parseInt(arr[0]) == 0) {
+													result = "12" + ":" + arr[1].toString() + " am";
+												} else {
+													result = arr[0].toString() + ":" + arr[1] + " am";
+												}
+												return result;
+											}
+											
+											document.write(displayTime('{{ meeting.start_time }}') + " - ");
+											document.write(displayTime('{{ meeting.end_time }}'));
+										</script>
+									</h4>
+								{% endfor %}
+							</div>
+						</div>
+					</div>
+				{% endif %}
+			{% endfor %}
+		{% endfor %}
+		<h3>Total Units:
+			<script>
+				totalUnits = totalUnits.toString();
+				document.write(totalUnits);
+			</script>
+		</h3> 
+		{% if user.user_type == 'A' %}
+            <form action="{% url 'respond_to_schedule' student.username %}" method="POST">
+                {% csrf_token %}
+                    <div class="col-xs-3 col-xs-offset-9 col-md-2 col-md-offset-10">
+                        <button type="submit" class="btn btn-primary btn-lg btn-block" name="approve" value="approve">Approve Schedule</button>
+                        <button type="submit" class="btn btn-danger btn-lg btn-block" name="reject" value="reject">Reject Schedule</button>
+                    </div>
+            </form>
+		{% endif %}
+	{% endif %}
+{% endblock %}

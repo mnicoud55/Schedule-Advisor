@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load socialaccount %}
+
+{% block content %}
+	<!-- only allow users that are logged in with a valid account to search classes -->
+	{% if not user.is_authenticated or not user.is_instansiated %}
+		<p>Sorry, but you must be logged in to use this feature! Click <a href="{% url 'index' %}">here</a> to return to the login page.</p>
+	{% else %}
+		<div class="form_div">
+			<form method="post">
+				{% csrf_token %}
+				{% for field in form %}
+
+					<div class="form-group">
+						{{ field.errors }}
+						{{ field.label_tag }} {{ field }}
+					</div>
+
+				{% endfor %}
+				<button type="submit" class="btn btn-secondary btn-lg btn-block">Search Classes</button>
+			</form>
+		</div>
+		{% for course in results %}
+			<div class="result col-md-12">
+				
+				<div class="row">
+					
+					<div class="col-xs-8 col-md-6">
+						<h3>{{ course.subject }}{{ course.catalog_nbr }}-{{ course.component }} - {{ course.descr }}</h3>
+					</div>
+
+					<div class="col-xs-4 col-md-1 col-md-offset-5">
+						<h3>{{ course.units }} Units</h3>
+					</div>
+
+				</div>
+
+				<div class="row">
+					<hr class="faded-separator">
+				</div>
+				
+				<div class="row">
+					<div class="col-xs-12 col-md-12">
+						<h4><a class="enrl-{{ course.enrl_stat_descr }}">{{ course.enrl_stat_descr }}</a> - {{ course.enrollment_available }} <b>/</b> {{ course.class_capacity }}</h4>
+						<h4 class="enrl-Waitlist">Waitlist - {{ course.wait_tot }} <b>/</b> {{ course.wait_cap }}</h4>
+					</div>
+				</div>
+				
+				<div class="row">
+					<div class="col-xs-12 col-md-12">
+						{% for instructor in course.instructors %}
+							<h4>{{ instructor.name }} - <a href="mailto:{{ instructor.email }}">{{ instructor.email }}</a></h4>
+						{% endfor %}
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-xs-12 col-md-12">
+						{% for meeting in course.meetings %}
+							<h4>Days: {{ meeting.days }}</h4>
+							<h4>Time: 
+								<script>
+									function displayTime(time) {
+										let arr = time.split(".");
+										let result = "";
+										if (parseInt(arr[0]) > 12) {
+											result = (parseInt(arr[0])-12).toString() + ":" + arr[1].toString() + " pm";
+										} else if (parseInt(arr[0]) == 12) {
+											result = "12" + ":" + arr[1].toString() + " pm";
+										} else if (parseInt(arr[0]) == 0) {
+											result = "12" + ":" + arr[1].toString() + " am";
+										} else {
+											result = arr[0].toString() + ":" + arr[1] + " am";
+										}
+										return result;
+									}
+									
+									var startTimeArr = '{{ meeting.start_time }}'.split(".");
+									if (startTimeArr[0] == '' || startTimeArr[1] == '') {
+										document.write('No Designated Time');
+									} else { 
+										document.write(displayTime('{{ meeting.start_time }}') + ' - ');
+										document.write(displayTime('{{ meeting.end_time }}'));
+									}
+								</script>
+							</h4>
+						{% endfor %}
+					</div>
+				</div>
+				{% if user.user_type == 'S' %}
+					{% if user.approval_status != 'N' %}
+					<div class="row">
+						<div class="col-xs-3 col-xs-offset-9 col-md-2 col-md-offset-10" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+							{% if course.class_nbr in user.cart %}
+								<button class="btn btn-warning btn-lg btn-block" hx-post="{% url 'edit_schedule' course.strm course.class_nbr %}" hx-trigger="click" hx-swap="outerHTML">Remove from Schedule</button>
+							{% else %}
+								<button class="btn btn-primary btn-lg btn-block" hx-post="{% url 'edit_schedule' course.strm course.class_nbr %}" hx-trigger="click" hx-swap="outerHTML">Add to Schedule</button>
+							{% endif %}
+						</div>
+					</div>
+					{% endif %}
+				{% endif %}
+			</div>
+		{% endfor %}
+	{% endif %}
+{% endblock %}

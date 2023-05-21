@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load socialaccount %}
+
+{% block content %}
+	{% if user.is_instansiated %}
+		<a href="{% url 'index' %}" id="redir">Click here if not automatically redirected...</a>
+		<script type="text/javascript">document.getElementById("redir").click()</script>
+	{% else %}
+		<form action="{% url 'logged_in' %}" method="post">
+			{% csrf_token %}
+			<h1>Login to Schedule Advisor</h1>
+
+			<label>Username: </label><br>
+			<input type="text", id="usernameText", name="usernameText"></input><br>
+
+			<label>Password: </label><br>
+			<input type="password" id="userPassword", name="userPassword", placeholder="Enter a password", required></input><br>
+
+			<button type="submit" class="btn btn-light btn-lg btn-block">Login</button>
+		</form>
+	{% endif %}
+{% endblock %}
