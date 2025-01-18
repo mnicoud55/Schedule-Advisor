@@ -184,7 +184,7 @@ STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 import logging
-logger = logging.getLogger('testLogger')
+logger = logging.getLogger('testlogger')
 logger.info('some important infos')
 LOGGING = {
     'version': 1,
