@@ -92,7 +92,7 @@ DATABASES = {
         'USER': 'postgres.tqwgjbyqysdezoicjhgm',
         'PASSWORD': 'schedule-advisor-mjn', 
         'HOST': 'aws-0-us-east-1.pooler.supabase.com',
-        'PORT': '5432',
+        'PORT': '6543',
     }
 }
 
