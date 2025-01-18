@@ -199,18 +199,18 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': 'C:\mysite.log',
+            'filename': 'C:/PersonalProjects/mysite.log',
             'formatter': 'verbose'
         },
     },
     'loggers': {
         'django': {
-            'handlers':['console'],
+            'handlers':['file'],
             'propagate': True,
             'level':'DEBUG',
         },
         'MYAPP': {
-            'handlers': ['console'],
+            'handlers': ['file'],
             'level': 'DEBUG',
         },
     }
