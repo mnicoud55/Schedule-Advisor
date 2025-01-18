@@ -90,8 +90,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'd5slbse9o879qq',
         'USER': 'ywkdszsebcshqv',
-        'PASSWORD': 'b5ec31dc9c40cc73e12c6b0dbfe886d886bf5a43a477386cbb28578273293339',
-        'HOST': 'ec2-54-173-77-184.compute-1.amazonaws.com',
+        'PASSWORD': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxd2dqYnlxeXNkZXpvaWNqaGdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcyMjE1MzcsImV4cCI6MjA1Mjc5NzUzN30.h0N_-yI_mzk_O9E-eYRegQn_ux9cC3i5V96jYGZNVNE',#'b5ec31dc9c40cc73e12c6b0dbfe886d886bf5a43a477386cbb28578273293339',
+        'HOST': 'https://tqwgjbyqysdezoicjhgm.supabase.co', #'ec2-54-173-77-184.compute-1.amazonaws.com',
         'PORT': '5432',
     }
 }
