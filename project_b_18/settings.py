@@ -30,7 +30,7 @@ SECURE_SSL_REDIRECT = True
 
 ALLOWED_HOSTS = [
     "schedule-advisor-mjn-dd055828a646.herokuapp.com",
-    "127.0.0.1"
+    "127.0.0.1",
 ]
 
 

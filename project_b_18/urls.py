@@ -38,5 +38,5 @@ urlpatterns = [
     path('schedule/send/', views.send_schedule, name='send_schedule'),
     path('advisor/schedules/', TemplateView.as_view(template_name="advisor_schedules.html"), name='advisor_schedules'),
     path('<str:uname>/schedule/', views.view_schedule_page, name='view_schedule'),
-    path('<str:uname>/schedule/respond', views.respond_to_schedule, name='respond_to_schedule'),
+    path('<str:uname>/schedule/respond/', views.respond_to_schedule, name='respond_to_schedule'),
 ]
